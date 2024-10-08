@@ -3,62 +3,40 @@ import moment from 'moment';
 
 export const getStatistics = async (req, res) => {
   try {
-    const { month = 1, year = 2022 } = req.query;
+    const { month } = req.query;
 
-    if (!month || !year) {
-      return res.status(400).json({ message: "Please provide both month and year." });
-    }
-    if(month > 12){
-        return res.status(400).json({
-            message: "Invalid month. Please enter a month between 1 and 12."
-        });
+    if (!month || month < 1 || month > 12) {
+      return res.status(400).json({ message: "Please provide a valid month (1-12)." });
     }
 
-    const startDate = moment(`${year}-${month}-01`).startOf('month').toDate();
-    const endDate = moment(startDate).endOf('month').toDate();
-
-    const totalSales = await Product.aggregate([
-      {
-        $match: {
-          sold: true,
-          dateOfSale: {
-            $gte: startDate,
-            $lt: endDate,
-          },
-        },
-      },
-      {
-        $group: {
-            _id: null,
-            totalAmount: { $sum: '$price' },
-        },
-      },
-    ]);
-    // console.log(totalSales)
-    const totalSoldItems = await Product.countDocuments({
-      sold: true,
-      dateOfSale: {
-        $gte: startDate,
-        $lt: endDate,
-      },
+    const soldProducts = await Product.find({
+      $expr: { $eq: [{ $month: "$dateOfSale" }, parseInt(month)] },
+      sold: true 
     });
 
-    const totalNotSoldItems = await Product.countDocuments({
-      sold: false,
+    const totalSaleAmount = soldProducts.reduce((total, product) => total + product.price, 0);
+    const totalSoldItems = soldProducts.length;
+
+    const allProducts = await Product.find({
+      $expr: { $eq: [{ $month: "$dateOfSale" }, parseInt(month)] }
     });
-    let data = {
-        totalSales: totalSales.length > 0 ? totalSales[0].totalAmount : 0,
-        totalSoldItems,
-        totalNotSoldItems,
-    }
+
+    const totalNotSoldItems = allProducts.length - totalSoldItems;
+
+    const statistics = {
+      totalSaleAmount,
+      totalSoldItems,
+      totalNotSoldItems
+    };
+
     res.status(200).json({
-        succenss: true,
-        data,
+      success:true,
+      data: statistics
     });
   } catch (error) {
-    res.status(500).json({
-        succenss: false,
-        message: error.message 
-    });
+    res.status(500).json({ 
+      success: false,
+      message: error.message
+     });
   }
 };

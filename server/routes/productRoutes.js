@@ -6,6 +6,7 @@ import { getStatistics } from '../controller/statistics.js';
 import { getPriceRangeBarChart } from '../controller/barChartStatistics.js';
 import { getCategoryPieChart } from '../controller/pieChart.js';
 import { combineData } from '../controller/combineData.js';
+import { TransactionsMonth } from '../controller/TransactionsPerMonth.js';
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.get('/statistics', getStatistics);
 router.get('/barChart', getPriceRangeBarChart);
 router.get('/pieChart', getCategoryPieChart);
 router.get('/combineStatistics', combineData);
+router.get('/transactionsMonth', TransactionsMonth);
 
 export default router;

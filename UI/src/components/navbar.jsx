@@ -13,7 +13,7 @@ function Navbar() {
             <Link to="/Statistics" className="font-bold hover:text-gray-300">Statistics</Link>
           </li>
           <li>
-            <Link to="/BarChar" className="font-bold hover:text-gray-300">BarChar</Link>
+            <Link to="/BarChart" className="font-bold hover:text-gray-300">BarChart</Link>
           </li>
         </ul>
       </div>

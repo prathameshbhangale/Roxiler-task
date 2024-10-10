@@ -21,10 +21,10 @@ export default function BarChrt() {
         const fetchData = async () => {
             dispatch(setLoading(true));
             try {
-                const stasticsData = await fetchBarChart({ month });
-        setData(stasticsData);
+                const bchart = await fetchBarChart({ month });
+        setData(bchart);
             } catch (err) {
-                console.log('Error fetching stasticsData:', err);
+                console.log('Error fetching bchart:', err);
                 dispatch(setError(err));
             } finally {
                 dispatch(setLoading(false));

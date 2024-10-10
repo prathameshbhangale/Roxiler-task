@@ -9,7 +9,7 @@ const initialState = {
     description: '', 
     price: 0,      
     loading: false,
-    error: null
+    error: null,
 };
 
 const filterOptions = createSlice({

@@ -2,7 +2,7 @@ import Product from "../model/product.js";
 
 export const TransactionsMonth = async (req, res) => {
   try {
-    const { page = 1, perPage = 10, search = '', month = 3 } = req.query;
+    const { page = 1, perPage = 10, search = '', month = 3,title,description,price } = req.query;
 
     const pageNumber = parseInt(page);
     const itemsPerPage = parseInt(perPage);
@@ -12,9 +12,9 @@ export const TransactionsMonth = async (req, res) => {
       $and: [
         {
           $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } },
-            { price: { $regex: new RegExp(`^${search}$`, 'i') } } 
+            { title: { $regex: title, $options: 'i' } },
+            { description: { $regex: description, $options: 'i' } },
+            { price: { $regex: new RegExp(`^${price}$`, 'i') } } 
           ]
         },
         {

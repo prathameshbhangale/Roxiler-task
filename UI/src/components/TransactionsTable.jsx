@@ -1,7 +1,7 @@
 import { fetchTransactions } from '../api/service/transactions.js';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setLoading, setError, nextPage, previousPage, setPerPage, setPage, setMonth } from '../slice/filterOption.js'; 
+import { setLoading, setError, nextPage, previousPage, setPerPage, setPage, setMonth ,setTitle,setDescription } from '../slice/filterOption.js'; 
 
 function TransactionsTable() {
     const dispatch = useDispatch();
@@ -35,7 +35,7 @@ function TransactionsTable() {
         };
 
         fetchData();
-    }, [dispatch, page, perPage, month, title, description, price]);
+    }, [dispatch, setTitle, page, perPage, month, title, description, price]);
 
     const handleNextPage = () => {
         dispatch(nextPage());
@@ -52,6 +52,33 @@ function TransactionsTable() {
         }
     };
 
+    const handleSearchChange = (e) => {
+        dispatch(setTitle(e.target.value));
+        console.log(e.target.value)
+        dispatch(setDescription(e.target.value));
+        dispatch(setPage(1));
+        // dispatch(setPrice(e.target.value));
+        // setSearch(e.target.value);
+    };
+
+    const handleSearchClick = async () => {
+        dispatch(setLoading(true));
+        try {
+            const transactions = await fetchTransactions({ page, perPage, month, title, description, price });
+            console.log(transactions);
+            setData(transactions);
+        } catch (err) {
+            console.log('Error fetching transactions:', err);
+            setErrorState(err);
+            dispatch(setError(err));
+        } finally {
+            setLoadingState(false);
+            dispatch(setLoading(false));
+        }
+        dispatch(setTitle(''));
+        dispatch(setDescription(''));
+    };
+    
     const handlePerPageChange = (e) => {
         const newPerPage = Number(e.target.value);
         if (newPerPage > 0) {
@@ -74,24 +101,43 @@ function TransactionsTable() {
     return (
         <div className="container mx-auto p-4">
             <h2 className="text-4xl text-center font-semibold mx-auto mb-7">Transactions Dashboard</h2>
-            <div className="mb-4 flex justify-center">
-                <label className="mr-2" htmlFor="month">Select Month:</label>
-                <select 
-                    id="month"
-                    value={month}
-                    onChange={handleMonthChange}
-                    className="border rounded px-2 py-1"
-                >
-                    <option value="">All</option>
-                    {Array.from({ length: 12 }, (_, index) => {
-                        const monthName = new Date(0, index).toLocaleString('default', { month: 'long' });
-                        return (
-                            <option key={index} value={index + 1}>
-                                {monthName}
-                            </option>
-                        );
-                    })}
-                </select>
+            
+            <div className='flex justify-center'>
+                <div className="mb-4 flex justify-center">
+                    <label className="mr-2" htmlFor="month">Select Month:</label>
+                    <select 
+                        id="month"
+                        value={month}
+                        onChange={handleMonthChange}
+                        className="border rounded px-2 py-1"
+                    >
+                        <option value="">All</option>
+                        {Array.from({ length: 12 }, (_, index) => {
+                            const monthName = new Date(0, index).toLocaleString('default', { month: 'long' });
+                            return (
+                                <option key={index} value={index + 1}>
+                                    {monthName}
+                                </option>
+                            );
+                        })}
+                    </select>
+                </div>
+                <div className="search-input mx-auto">
+                    <input
+                    className="bg-gray-100 text-black 
+                    border-none rounded-xl p-2"
+                    type="text"
+                    placeholder="Search transactions"
+                    value={title}
+                    onChange={handleSearchChange}
+                    />
+                    <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={handleSearchClick}
+                    >
+                    Search
+                    </button>
+                </div>
             </div>
             {data.length > 0 ? (
                 <>
@@ -128,13 +174,13 @@ function TransactionsTable() {
                 <div>
                     <button 
                         onClick={handlePreviousPage} 
-                        className="bg-blue-500 text-white px-4 py-2 rounded mr-2" 
+                        className="bg-green-500 text-white px-4 py-2 rounded mr-2" 
                         disabled={page === 1}>
                         Previous
                     </button>
                     <button 
                         onClick={handleNextPage} 
-                        className="bg-blue-500 text-white px-4 py-2 rounded">
+                        className="bg-green-500 text-white px-4 py-2 rounded">
                         Next
                     </button>
                 </div>
